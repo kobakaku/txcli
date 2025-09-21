@@ -51,11 +51,19 @@ Signed transaction: 0xf86f808502540be40082520894863454baa02ff0a84ed9e663ea0921c8
 
 ## Testing
 
-```bash
-# Unit tests
-make test
+### Unit tests
 
-# E2E tests
+```bash
+make test
+```
+
+## E2E Tests
+
+E2E tests use Anvil (local Ethereum node) that forks from Base Sepolia testnet.
+
+```bash
+# Example with Alchemy
+export RPC_URL=https://base-sepolia.g.alchemy.com/v2/YOUR_API_KEY
 make e2e
 ```
 
