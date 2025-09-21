@@ -1,0 +1,35 @@
+name: Tagging on push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tagging:
+    name: Tagging
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup git user
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Add a git tag
+        env:
+          REF: ${{ github.ref_name }}
+          COMMIT_ID: ${{ github.sha }}
+        run: |
+          set -eu
+          VERSION=$(jq -r '.version' package.json)
+          if git ls-remote --tags origin | grep -q "refs/tags/$VERSION$"; then
+            git push origin ":tags/$VERSION"
+          fi
+          git tag $VERSION $COMMIT_ID
+          git push origin $VERSION
