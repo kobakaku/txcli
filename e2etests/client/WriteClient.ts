@@ -5,30 +5,27 @@ import {
   Hex,
   WalletClient,
   Account,
+  createPublicClient,
 } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { IPublicClient } from "@/e2etests/client/PublicClient";
 
-export interface IFaucetClient {
+export interface IWriteClient {
   sendEther(toAddr: Hex, value: bigint, wait?: boolean): Promise<Hex>;
 }
 
-export class FaucetClient implements IFaucetClient {
-  private readonly client: WalletClient<any, Chain, Account>;
-  private readonly publicClient: IPublicClient;
+export class WriteClient implements IWriteClient {
+  private readonly walletClient: WalletClient<any, Chain, Account>;
+  private readonly publicClient: ReturnType<typeof createPublicClient>;
 
-  constructor(
-    faucetPrivateKey: Hex,
-    rpcUrl: string,
-    chain: Chain,
-    publicClient: IPublicClient,
-  ) {
-    this.client = createWalletClient({
-      account: privateKeyToAccount(faucetPrivateKey),
+  constructor(account: Account, rpcUrl: string, chain: Chain) {
+    this.walletClient = createWalletClient({
+      account,
       transport: http(rpcUrl),
       chain,
     });
-    this.publicClient = publicClient;
+    this.publicClient = createPublicClient({
+      chain,
+      transport: http(rpcUrl),
+    });
   }
 
   /**
@@ -43,14 +40,16 @@ export class FaucetClient implements IFaucetClient {
     value: bigint,
     wait: boolean = true,
   ): Promise<Hex> {
-    const hash = await this.client.sendTransaction({
+    const hash = await this.walletClient.sendTransaction({
       to: toAddr,
       value,
     });
 
     // Wait for transaction to be mined
     if (wait) {
-      const receipt = await this.publicClient.waitForTransactionReceipt(hash);
+      const receipt = await this.publicClient.waitForTransactionReceipt({
+        hash,
+      });
       if (receipt.status === "reverted") {
         throw new Error(`Faucet transaction failed: ${hash}`);
       }

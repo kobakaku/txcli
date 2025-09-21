@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { Hex, parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { FaucetClient, IFaucetClient } from "@/e2etests/client/FaucetClient";
+import { env } from "@/env";
+import { WriteClient, IWriteClient } from "@/e2etests/client/WriteClient";
 import { IPublicClient, PublicClient } from "@/e2etests/client/PublicClient";
 import { FAUCET_PRIVATE_KEY, RPC_URL } from "@/e2etests/const";
-import { env } from "@/env";
 import { signTx } from "@/e2etests/helpers/signTx";
 import { generateAccount } from "@/e2etests/helpers/account";
 
@@ -13,15 +13,16 @@ const SEND_VALUE = parseEther("0.01");
 describe("txcli", () => {
   let sender: IPublicClient;
   let receiver: IPublicClient;
-  let faucet: IFaucetClient;
+  let faucet: IWriteClient;
 
   beforeAll(async () => {
     const senderAccount = privateKeyToAccount(env.SENDER_PRIVATE_KEY);
     const receiverAccount = generateAccount();
+    const faucetAccount = privateKeyToAccount(FAUCET_PRIVATE_KEY);
 
     sender = new PublicClient(senderAccount, RPC_URL, env.CHAIN);
     receiver = new PublicClient(receiverAccount, RPC_URL, env.CHAIN);
-    faucet = new FaucetClient(FAUCET_PRIVATE_KEY, RPC_URL, env.CHAIN, sender);
+    faucet = new WriteClient(faucetAccount, RPC_URL, env.CHAIN);
 
     // Sender needs some ether to send to receiver
     await faucet.sendEther(sender.address, parseEther("1"));
