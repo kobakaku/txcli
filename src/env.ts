@@ -11,7 +11,6 @@ const getChainById = (chainId: number): chains.Chain => {
 };
 
 const envSchema = z.object({
-  RPC_URL: z.url(),
   CHAIN_ID: z.string().transform((val) => Number.parseInt(val, 10)),
   SENDER_PRIVATE_KEY: hexPrefixedSchema,
 });

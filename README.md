@@ -45,7 +45,6 @@ make run TO_ADDRESS=0xRecipientAddress ETHER=0.01 NONCE=0
 ## Output Examples
 
 ```
-Using nonce: 0
 Signed transaction: 0xf86f808502540be40082520894863454baa02ff0a84ed9e663ea0921c8c388c44688016345785d8a0000808302948ba0...
 ```
 
